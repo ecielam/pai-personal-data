@@ -1,0 +1,20 @@
+# Secrets and credentials
+.env
+.env.*
+*.key
+*.pem
+*.p12
+credentials.json
+secrets.json
+**/secrets/
+*.secret
+
+# Scratch/temp files
+WORK/scratch/
+**/scratch/
+*.tmp
+*.temp
+
+# OS files
+.DS_Store
+Thumbs.db
