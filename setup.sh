@@ -59,7 +59,7 @@ for dir in "${DIRS[@]}"; do
     fi
 done
 
-# Handle symlinks and backups
+# Handle symlinks and backups for main directories
 echo ""
 echo -e "${BLUE}Setting up symlinks...${NC}"
 for dir in "${DIRS[@]}"; do
@@ -90,6 +90,72 @@ for dir in "${DIRS[@]}"; do
         echo -e "  ${GREEN}Linked${NC}  $link -> $target"
     fi
 done
+
+# Handle CORE_USER -> ~/.claude/skills/CORE/USER
+echo ""
+echo -e "${BLUE}Setting up CORE_USER...${NC}"
+CORE_USER_TARGET="$REPO_DIR/CORE_USER"
+CORE_USER_LINK="$PAI_DIR/skills/CORE/USER"
+
+if [[ -d "$REPO_DIR/CORE_USER" ]]; then
+    # Ensure the parent directory exists
+    mkdir -p "$PAI_DIR/skills/CORE"
+
+    if [[ -L "$CORE_USER_LINK" ]]; then
+        # Already a symlink
+        current_target=$(readlink "$CORE_USER_LINK")
+        if [[ "$current_target" == "$CORE_USER_TARGET" ]]; then
+            echo -e "  ${GREEN}OK${NC}      $CORE_USER_LINK -> $CORE_USER_TARGET"
+        else
+            echo -e "  ${YELLOW}Update${NC}  $CORE_USER_LINK (was -> $current_target)"
+            rm "$CORE_USER_LINK"
+            ln -s "$CORE_USER_TARGET" "$CORE_USER_LINK"
+            echo -e "  ${GREEN}Linked${NC}  $CORE_USER_LINK -> $CORE_USER_TARGET"
+        fi
+    elif [[ -d "$CORE_USER_LINK" ]]; then
+        # Existing directory - DON'T auto-backup, warn user
+        echo -e "  ${RED}WARNING${NC} Existing directory found at:"
+        echo -e "          $CORE_USER_LINK"
+        echo ""
+        echo -e "  ${YELLOW}This contains your personal CORE user data.${NC}"
+        echo -e "  To use this repo for CORE_USER, you must manually:"
+        echo ""
+        echo -e "    1. Move your data:  ${BLUE}mv $CORE_USER_LINK/* $CORE_USER_TARGET/${NC}"
+        echo -e "    2. Remove the dir:  ${BLUE}rmdir $CORE_USER_LINK${NC}"
+        echo -e "    3. Re-run setup:    ${BLUE}./setup.sh${NC}"
+        echo ""
+        echo -e "  ${YELLOW}Skipping CORE_USER setup for now.${NC}"
+    else
+        # Nothing there - create symlink
+        ln -s "$CORE_USER_TARGET" "$CORE_USER_LINK"
+        echo -e "  ${GREEN}Linked${NC}  $CORE_USER_LINK -> $CORE_USER_TARGET"
+    fi
+else
+    echo -e "  ${YELLOW}Skipped${NC} CORE_USER/ directory not found in repo"
+fi
+
+# Handle personal skills
+echo ""
+echo -e "${BLUE}Setting up personal skills...${NC}"
+SKILLS_DIR="$REPO_DIR/skills"
+
+if [[ -d "$SKILLS_DIR" ]]; then
+    # Count subdirectories (actual skills, not just .gitkeep)
+    skill_count=$(find "$SKILLS_DIR" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l)
+
+    if [[ $skill_count -gt 0 ]]; then
+        echo -e "  Found $skill_count skill(s) to link"
+        if [[ -x "$REPO_DIR/link_skills.sh" ]]; then
+            "$REPO_DIR/link_skills.sh"
+        else
+            echo -e "  ${YELLOW}Warning${NC} link_skills.sh not found or not executable"
+        fi
+    else
+        echo -e "  ${YELLOW}Skipped${NC} No skills found in skills/ (add _ALLCAPS skill directories)"
+    fi
+else
+    echo -e "  ${YELLOW}Skipped${NC} skills/ directory not found"
+fi
 
 # Copy gitignore template if it exists and .gitignore doesn't
 if [[ -f "$REPO_DIR/.gitignore.template" ]] && [[ ! -f "$REPO_DIR/.gitignore" ]]; then

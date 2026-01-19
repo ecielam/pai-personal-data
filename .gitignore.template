@@ -15,6 +15,11 @@ WORK/scratch/
 *.tmp
 *.temp
 
+# Skill dependencies and state
+skills/*/node_modules/
+skills/*/Data/*.json
+skills/*/.env
+
 # OS files
 .DS_Store
 Thumbs.db
