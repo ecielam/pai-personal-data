@@ -29,7 +29,7 @@ Your Repo (source of truth)          PAI Directory (symlinks)
 
 ```bash
 # 1. Clone this template
-git clone https://github.com/danielmiessler/pai-personal-data.git ~/my-pai-data
+git clone https://github.com/ecielam/pai-personal-data.git ~/my-pai-data
 cd ~/my-pai-data
 
 # 2. Run setup (creates symlinks)
@@ -122,7 +122,7 @@ If you already have PAI data, follow these steps to migrate:
 ### Step 1: Clone This Template
 
 ```bash
-git clone https://github.com/danielmiessler/pai-personal-data.git ~/my-pai-data
+git clone https://github.com/ecielam/pai-personal-data.git ~/my-pai-data
 cd ~/my-pai-data
 ```
 
